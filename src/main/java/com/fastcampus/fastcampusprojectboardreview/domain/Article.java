@@ -1,6 +1,5 @@
 package com.fastcampus.fastcampusprojectboardreview.domain;
 
-import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -8,7 +7,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,12 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +22,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
 	@Index(columnList = "title"),
@@ -38,9 +30,8 @@ import lombok.ToString;
 	@Index(columnList = "createdAt"),
 	@Index(columnList = "createdBy")
 })
-@EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Article {
+public class Article extends AuditingFields {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -59,19 +50,6 @@ public class Article {
 	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
 	@ToString.Exclude
 	private final Set<ArticleComment> articleComments = new LinkedHashSet<>();
-
-	@CreatedDate
-	@Column(nullable = false)
-	private LocalDateTime createdAt;
-	@CreatedBy
-	@Column(nullable = false)
-	private String createdBy;
-	@LastModifiedDate
-	@Column(nullable = false)
-	private LocalDateTime modifiedAt;
-	@LastModifiedBy
-	@Column(nullable = false)
-	private String modifiedBy;
 
 
 	private Article(String title, String content, String hashtag) {
