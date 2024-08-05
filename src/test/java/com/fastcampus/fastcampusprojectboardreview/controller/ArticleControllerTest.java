@@ -9,10 +9,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fastcampus.fastcampusprojectboardreview.config.SecurityConfig;
+
 @DisplayName("View 컨트롤러 - 게시글")
+@Import(SecurityConfig.class)
 @WebMvcTest(ArticleController.class)
 class ArticleControllerTest {
 	private final MockMvc mockMvc;
@@ -32,7 +36,6 @@ class ArticleControllerTest {
 			.andExpect(model().attributeExists("articles"));
 	}
 
-	@Disabled("구현 중")
 	@DisplayName("[view][GET] 게시글 상세 페이지 정상 호출")
 	@Test
 	void givenNothing_whenRequestingArticleView_thenReturnArticleView() throws Exception {
@@ -41,7 +44,7 @@ class ArticleControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
 			.andExpect(view().name("articles/detail"))
-			.andExpect(model().attributeExists("articles"))
+			.andExpect(model().attributeExists("article"))
 			.andExpect(model().attributeExists("articleComments"));
 	}
 
