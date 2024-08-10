@@ -1,5 +1,7 @@
 package com.fastcampus.fastcampusprojectboardreview.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
@@ -18,6 +20,7 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
 	QuerydslPredicateExecutor<ArticleComment>,
 	QuerydslBinderCustomizer<QArticleComment>
 {
+	List<ArticleComment> findByArticle_Id(Long articleId);
 
 	@Override
 	default void customize(QuerydslBindings bindings, QArticleComment root) {

@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
@@ -14,8 +15,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
 	@Index(columnList = "content"),
@@ -37,14 +40,19 @@ public class ArticleComment extends AuditingFields{
 	@ManyToOne(optional = false)
 	private Article article;
 
+	@Setter @ManyToOne(optional = false)
+	@JoinColumn(name = "user_account_id")
+	private UserAccount userAccount; // 유저 정보 (ID)
 
-	private ArticleComment(String content, Article article) {
-		this.content = content;
+
+	private ArticleComment(Article article, UserAccount userAccount, String content) {
 		this.article = article;
+		this.userAccount = userAccount;
+		this.content = content;
 	}
 
-	public static ArticleComment of(String content, Article article) {
-		return new ArticleComment(content, article);
+	public static ArticleComment of(Article article, UserAccount userAccount, String content) {
+		return new ArticleComment(article, userAccount, content);
 	}
 
 	@Override

@@ -21,8 +21,8 @@ spring:
     properties:
       hibernate.format_sql: true
       hibernate.default_batch_fetch_size: 100
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
   sql.init.mode: always
   data.rest:
@@ -35,17 +35,9 @@ spring:
 ---
 
 spring:
-  config:
-    activate:
-      on-profile: testdb
-  datasource:
-    url: jdbc:h2:mem:board;mode=mysql
-    driver-class-name: org.h2.Driver
-    username: sa
-  sql:
-    init:
-      mode: always
-  test.database.replace: none #document? ?????? ?????? ???
+  config.activate.on-profile: test
+#  datasource.url: jdbc:h2:mem:testdb
+
 
 ---
 

@@ -13,22 +13,27 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.fastcampus.fastcampusprojectboardreview.config.JpaConfig;
 import com.fastcampus.fastcampusprojectboardreview.domain.Article;
+import com.fastcampus.fastcampusprojectboardreview.domain.UserAccount;
 
-@ActiveProfiles("testdb")
+// @ActiveProfiles("test")
 @DisplayName("JPA 연결 테스트")
 @Import({JpaConfig.class})
 @DataJpaTest
 public class JpaRepositoryTest {
 	private final ArticleRepository articleRepository;
 	private final ArticleCommentRepository articleCommentRepository;
+	private final UserAccountRepository userAccountRepository;
 
 	public JpaRepositoryTest(
 		@Autowired ArticleRepository articleRepository,
-		@Autowired ArticleCommentRepository articleCommentRepository
+		@Autowired ArticleCommentRepository articleCommentRepository,
+		@Autowired UserAccountRepository userAccountRepository
 	) {
 		this.articleRepository = articleRepository;
 		this.articleCommentRepository = articleCommentRepository;
+		this.userAccountRepository = userAccountRepository;
 	}
+
 
 	@DisplayName("select Test")
 	@Test
@@ -47,7 +52,9 @@ public class JpaRepositoryTest {
 	@Test
 	void givenTestData_whenInserting_thenSuccess() {
 		//Given
-		Article article = Article.of("제목", "내용", "해시태그");
+
+		UserAccount userAccount = UserAccount.of("uno", "pw", "a@mail.com", "nickname", "memo");
+		Article article = Article.of(userAccount, "제목", "내용", "해시태그");
 		long previousCount = articleRepository.count();
 
 		//When
