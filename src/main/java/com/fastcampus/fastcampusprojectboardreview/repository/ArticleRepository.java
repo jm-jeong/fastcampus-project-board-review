@@ -1,5 +1,7 @@
 package com.fastcampus.fastcampusprojectboardreview.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
@@ -18,6 +20,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long>,
 	QuerydslPredicateExecutor<Article>,//모든 필드에 대하여 검색 가능 exact match
 	QuerydslBinderCustomizer<QArticle>//필드 별로 커스터마이징 기능 제공, 모든 필드가 검색될 필요도 exact match도 필요한게 아니라 해당부분 선언하여 커스터마이징
 {
+	Page<Article> findByTitleContaining(String title, Pageable pageable);
+	Page<Article> findByContentContaining(String content, Pageable pageable);
+	Page<Article> findByUserAccount_UserIdContaining(String userId, Pageable pageable);
+	Page<Article> findByUserAccount_NicknameContaining(String nickname, Pageable pageable);
+	Page<Article> findByHashtagContaining(String hashtag, Pageable pageable);
+
 	@Override
 	default void customize(QuerydslBindings bindings, QArticle root) {
 		bindings.excludeUnlistedProperties(true);// 모든 필드 검색 안되게
