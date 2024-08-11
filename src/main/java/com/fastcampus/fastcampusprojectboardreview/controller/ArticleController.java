@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fastcampus.fastcampusprojectboardreview.domain.type.SearchType;
-import com.fastcampus.fastcampusprojectboardreview.dto.ArticleWithCommentsDto;
 import com.fastcampus.fastcampusprojectboardreview.dto.response.ArticleResponse;
 import com.fastcampus.fastcampusprojectboardreview.dto.response.ArticleWithCommentsResponse;
 import com.fastcampus.fastcampusprojectboardreview.service.ArticleService;
-import com.fastcampus.fastcampusprojectboardreview.service.PagenationService;
+import com.fastcampus.fastcampusprojectboardreview.service.PaginationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class ArticleController {
 	private final ArticleService articleService;
-	private final PagenationService pagenationService;
+	private final PaginationService paginationService;
 
 	@GetMapping
 	public String articles(
@@ -38,11 +37,12 @@ public class ArticleController {
 	) {
 		Page<ArticleResponse> articles = articleService.searchArticles(searchType, searchValue, pageable)
 			.map(ArticleResponse::from);
-		List<Integer> barNumbers = pagenationService.getPaginationBarNumbers(pageable.getPageNumber(),
+		List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(),
 			articles.getTotalPages());
 
 		map.addAttribute("articles", articles);
 		map.addAttribute("paginationBarNumbers", barNumbers);
+		map.addAttribute("searchTypes", SearchType.values());
 		
 		return "articles/index";
 	}
