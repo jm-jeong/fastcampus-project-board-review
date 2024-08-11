@@ -1,6 +1,5 @@
 package com.fastcampus.fastcampusprojectboardreview.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,10 +21,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fastcampus.fastcampusprojectboardreview.config.SecurityConfig;
+import com.fastcampus.fastcampusprojectboardreview.domain.type.SearchType;
 import com.fastcampus.fastcampusprojectboardreview.dto.ArticleWithCommentsDto;
 import com.fastcampus.fastcampusprojectboardreview.dto.UserAccountDto;
 import com.fastcampus.fastcampusprojectboardreview.service.ArticleService;
-import com.fastcampus.fastcampusprojectboardreview.service.PagenationService;
+import com.fastcampus.fastcampusprojectboardreview.service.PaginationService;
 
 @DisplayName("View 컨트롤러 - 게시글")
 @Import(SecurityConfig.class)
@@ -36,7 +36,7 @@ class ArticleControllerTest {
 	@MockBean
 	ArticleService articleService;
 	@MockBean
-	PagenationService pagenationService;
+	PaginationService paginationService;
 
 	ArticleControllerTest(@Autowired MockMvc mockMvc) {
 		this.mvc = mockMvc;
@@ -47,7 +47,7 @@ class ArticleControllerTest {
 	void givenNothing_whenRequestingArticlesView_thenReturnArticlesView() throws Exception {
 		//given
 		given(articleService.searchArticles(eq(null), eq(null), any(Pageable.class))).willReturn(Page.empty());
-		given(pagenationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
+		given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
 
 		//When & Then
 		mvc.perform(get("/articles"))
@@ -55,10 +55,36 @@ class ArticleControllerTest {
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
 			.andExpect(view().name("articles/index"))
 			.andExpect(model().attributeExists("articles"))
-			.andExpect(model().attributeExists("paginationBarNumbers"));
+			.andExpect(model().attributeExists("paginationBarNumbers"))
+			.andExpect(model().attributeExists("searchTypes"));
 
 		then(articleService).should().searchArticles(eq(null), eq(null), any(Pageable.class));
-		then(pagenationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+		then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+	}
+
+	@DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 검색어와 함께 호출")
+	@Test
+	public void givenSearchKeyword_whenSearchingArticlesView_thenReturnsArticlesView() throws Exception {
+		//Given
+		SearchType searchType = SearchType.TITLE;
+		String searchValue = "title";
+		given(articleService.searchArticles(eq(searchType), eq(searchValue), any(Pageable.class))).willReturn(
+			Page.empty());
+		given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
+
+		//When
+		mvc.perform(get("/articles")
+				.queryParam("searchType", searchType.name())
+				.queryParam("searchValue", searchValue)
+			)
+			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+			.andExpect(view().name("articles/index"))
+			.andExpect(model().attributeExists("articles"))
+			.andExpect(model().attributeExists("searchTypes"));
+		//Then
+		then(articleService).should().searchArticles(eq(searchType), eq(searchValue), any(Pageable.class));
+		then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+
 	}
 
 	@DisplayName("[view][GET] 게시글 페이지 - 정상 호출")
