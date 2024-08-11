@@ -20,7 +20,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
-	@Index(columnList = "userId", unique = true),
 	@Index(columnList = "email", unique = true),
 	@Index(columnList = "createdAt"),
 	@Index(columnList = "createdBy")
@@ -28,10 +27,8 @@ import lombok.ToString;
 @Entity
 public class UserAccount extends AuditingFields {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	@Setter @Column(nullable = false, length = 50) private String userId;
+	@Column(length = 50)
+	private String userId;
 
 	@Setter
 	@Column(nullable = false)
