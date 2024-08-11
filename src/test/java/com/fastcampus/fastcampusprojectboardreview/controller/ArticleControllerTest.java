@@ -1,72 +1,141 @@
 package com.fastcampus.fastcampusprojectboardreview.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fastcampus.fastcampusprojectboardreview.config.SecurityConfig;
+import com.fastcampus.fastcampusprojectboardreview.dto.ArticleWithCommentsDto;
+import com.fastcampus.fastcampusprojectboardreview.dto.UserAccountDto;
+import com.fastcampus.fastcampusprojectboardreview.service.ArticleService;
+import com.fastcampus.fastcampusprojectboardreview.service.PagenationService;
 
 @DisplayName("View 컨트롤러 - 게시글")
 @Import(SecurityConfig.class)
 @WebMvcTest(ArticleController.class)
 class ArticleControllerTest {
-	private final MockMvc mockMvc;
+	private final MockMvc mvc;
+
+	@MockBean
+	ArticleService articleService;
+	@MockBean
+	PagenationService pagenationService;
 
 	ArticleControllerTest(@Autowired MockMvc mockMvc) {
-		this.mockMvc = mockMvc;
+		this.mvc = mockMvc;
 	}
 
 	@DisplayName("[view][GET] 게시판 리스트 - 게시 페이지 정상 호출")
 	@Test
 	void givenNothing_whenRequestingArticlesView_thenReturnArticlesView() throws Exception {
+		//given
+		given(articleService.searchArticles(eq(null), eq(null), any(Pageable.class))).willReturn(Page.empty());
+		given(pagenationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
+
 		//When & Then
-		mockMvc.perform(get("/articles"))
+		mvc.perform(get("/articles"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
 			.andExpect(view().name("articles/index"))
-			.andExpect(model().attributeExists("articles"));
+			.andExpect(model().attributeExists("articles"))
+			.andExpect(model().attributeExists("paginationBarNumbers"));
+
+		then(articleService).should().searchArticles(eq(null), eq(null), any(Pageable.class));
+		then(pagenationService).should().getPaginationBarNumbers(anyInt(), anyInt());
 	}
 
-	@DisplayName("[view][GET] 게시글 상세 페이지 정상 호출")
+	@DisplayName("[view][GET] 게시글 페이지 - 정상 호출")
 	@Test
-	void givenNothing_whenRequestingArticleView_thenReturnArticleView() throws Exception {
-		//When & Then
-		mockMvc.perform(get("/articles/1"))
+	public void givenNothing_whenRequestingArticleView_thenReturnsArticleView() throws Exception {
+		// Given
+		Long articleId = 1L;
+		long totalCount = 1L;
+		given(articleService.getArticle(articleId)).willReturn(createArticleWithCommentsDto());
+		given(articleService.getArticleCount()).willReturn(totalCount);
+
+		// When & Then
+		mvc.perform(get("/articles/" + articleId))
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
 			.andExpect(view().name("articles/detail"))
 			.andExpect(model().attributeExists("article"))
-			.andExpect(model().attributeExists("articleComments"));
+			.andExpect(model().attributeExists("articleComments"))
+			.andExpect(model().attributeExists("articleComments"))
+			.andExpect(model().attribute("totalCount", totalCount));
+		then(articleService).should().getArticle(articleId);
+		then(articleService).should().getArticleCount();
 	}
 
 	@Disabled("구현 중")
-	@DisplayName("[view][GET] 게시글 검색 전용 페이지 정상 호출")
+	@DisplayName("[view][GET] 게시글 검색 전용 페이지 - 정상 호출")
 	@Test
-	void givenNothing_whenRequestingArticleSearchView_thenReturnArticleSearchView() throws Exception {
-		//When & Then
-		mockMvc.perform(get("/articles/search"))
+	public void givenNothing_whenRequestingArticleSearchView_thenReturnsArticleSearchView() throws Exception {
+		// Given
+
+		// When & Then
+		mvc.perform(get("/articles/search"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
-			.andExpect(view().name("articles/search"));
+			.andExpect(model().attributeExists("articles/search"));
 	}
 
 	@Disabled("구현 중")
 	@DisplayName("[view][GET] 게시글 해시태그 검색 페이지 - 정상 호출")
 	@Test
 	public void givenNothing_whenRequestingArticleHashtagSearchView_thenReturnsArticleHashtagSearchView() throws Exception {
-		//When & Then
-		mockMvc.perform(get("/articles/search-hashtag"))
+		// Given
+
+		// When & Then
+		mvc.perform(get("/articles/search-hashtag"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
-			.andExpect(view().name("articles/search-hashtag"));
+			.andExpect(model().attributeExists("articles/search-hashtag"));
+	}
+
+
+	private ArticleWithCommentsDto createArticleWithCommentsDto() {
+		return ArticleWithCommentsDto.of(
+			1L,
+			createUserAccountDto(),
+			Set.of(),
+			"title",
+			"content",
+			"#java",
+			LocalDateTime.now(),
+			"uno",
+			LocalDateTime.now(),
+			"uno"
+		);
+	}
+
+	private UserAccountDto createUserAccountDto() {
+		return UserAccountDto.of(1L,
+			"uno",
+			"pw",
+			"uno@mail.com",
+			"Uno",
+			"memo",
+			LocalDateTime.now(),
+			"uno",
+			LocalDateTime.now(),
+			"uno"
+		);
 	}
 }

@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.fastcampus.fastcampusprojectboardreview.config.SecurityConfig;
 
@@ -29,6 +30,7 @@ public class AuthControllerTest {
 		//when & then
 		mockMvc.perform(get("/login"))
 			.andExpect(status().isOk())
-			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
+			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+			.andDo(MockMvcResultHandlers.print());
 	}
 }
