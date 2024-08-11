@@ -53,7 +53,7 @@ public class JpaRepositoryTest {
 	void givenTestData_whenInserting_thenSuccess() {
 		//Given
 
-		UserAccount userAccount = UserAccount.of("uno", "pw", "a@mail.com", "nickname", "memo");
+		UserAccount userAccount = UserAccount.of("newuno", "pw", "a@mail.com", "nickname", "memo");
 		Article article = Article.of(userAccount, "제목", "내용", "해시태그");
 		long previousCount = articleRepository.count();
 
