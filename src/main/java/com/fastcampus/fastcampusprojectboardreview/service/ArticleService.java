@@ -1,5 +1,7 @@
 package com.fastcampus.fastcampusprojectboardreview.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,9 +34,11 @@ public class ArticleService {
 		return switch (searchType) {
 			case TITLE -> articleRepository.findByTitleContaining(searchKeyword, pageable).map(ArticleDto::from);
 			case CONTENT -> articleRepository.findByContentContaining(searchKeyword, pageable).map(ArticleDto::from);
-			case ID -> articleRepository.findByUserAccount_UserIdContaining(searchKeyword, pageable).map(ArticleDto::from);
-			case NICKNAME -> articleRepository.findByUserAccount_NicknameContaining(searchKeyword, pageable).map(ArticleDto::from);
-			case HASHTAG -> articleRepository.findByHashtagContaining(searchKeyword, pageable).map(ArticleDto::from);
+			case ID ->
+				articleRepository.findByUserAccount_UserIdContaining(searchKeyword, pageable).map(ArticleDto::from);
+			case NICKNAME ->
+				articleRepository.findByUserAccount_NicknameContaining(searchKeyword, pageable).map(ArticleDto::from);
+			case HASHTAG -> articleRepository.findByHashtag(searchKeyword, pageable).map(ArticleDto::from);
 		};
 	}
 
@@ -48,6 +52,7 @@ public class ArticleService {
 	public void saveArticle(ArticleDto dto) {
 		articleRepository.save(dto.toEntity());
 	}
+
 	public void updateArticle(ArticleDto dto) {
 		try {
 			//findById대신 사용한 이유는 정확히 모르겠으나, 지연로딩에 entity를 바로 가져오고 못가져올 시 EntityNotFoundException를 무조건 반환한다.
@@ -63,6 +68,7 @@ public class ArticleService {
 			log.warn("게시글 업데이트 실패. 게시글을 찾을 수 없습니다 - dto:{}", dto);
 		}
 	}
+
 	public void deleteArticle(Long articleId) {
 		articleRepository.deleteById(articleId);
 	}
@@ -71,4 +77,16 @@ public class ArticleService {
 		return articleRepository.count();
 	}
 
+	@Transactional(readOnly = true)
+	public Page<ArticleDto> searchArticlesViaHashtag(String hashtag, Pageable pageable) {
+		if (hashtag == null || hashtag.isBlank()) {
+			return Page.empty(pageable);
+		}
+
+		return articleRepository.findByHashtag(hashtag, pageable).map(ArticleDto::from);
+	}
+
+	public List<String> getHashtags() {
+		return articleRepository.findAllDistinctHashtags();
+	}
 }
