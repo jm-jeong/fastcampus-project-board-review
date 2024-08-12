@@ -10,10 +10,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fastcampus.fastcampusprojectboardreview.domain.type.SearchType;
+import com.fastcampus.fastcampusprojectboardreview.domain.constant.FormStatus;
+import com.fastcampus.fastcampusprojectboardreview.domain.constant.SearchType;
+import com.fastcampus.fastcampusprojectboardreview.dto.ArticleDto;
+import com.fastcampus.fastcampusprojectboardreview.dto.UserAccountDto;
+import com.fastcampus.fastcampusprojectboardreview.dto.request.ArticleRequest;
 import com.fastcampus.fastcampusprojectboardreview.dto.response.ArticleResponse;
 import com.fastcampus.fastcampusprojectboardreview.dto.response.ArticleWithCommentsResponse;
 import com.fastcampus.fastcampusprojectboardreview.service.ArticleService;
@@ -49,7 +54,8 @@ public class ArticleController {
 
 	@GetMapping("/{articleId}")
 	public String article(@PathVariable("articleId") Long articleId, ModelMap map) {
-		ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticle(articleId));
+		ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(
+			articleService.getArticleWithComments(articleId));
 
 		map.addAttribute("article", article);
 		map.addAttribute("articleComments", article.articleCommentsResponse());
@@ -76,5 +82,48 @@ public class ArticleController {
 		map.addAttribute("searchType", SearchType.HASHTAG);
 
 		return "articles/search-hashtag";
+	}
+
+	@GetMapping("/form")
+	public String articleForm(ModelMap map) {
+		map.addAttribute("fromStatus", FormStatus.CREATE);
+
+		return "articles/from";
+	}
+
+	@PostMapping("/form")
+	public String postNewArticle(ArticleRequest articleRequest) {
+		articleService.saveArticle(articleRequest.toDto(UserAccountDto.of(
+			"uno", "asdf1234", "uno@mail.com", "Uno", "memo", null, null, null, null
+		)));
+
+		return "redirect:/articles";
+	}
+
+	@GetMapping("/{articleId}/from")
+	public String updateArticleForm(@PathVariable Long articleId, ModelMap map) {
+		ArticleResponse article = ArticleResponse.from(articleService.getArticle(articleId));
+		map.addAttribute("article", article);
+		map.addAttribute("formStatus", FormStatus.UPDATE);
+
+		return "articles/form";
+	}
+
+	@PostMapping ("/{articleId}/form")
+	public String updateArticle(@PathVariable Long articleId, ArticleRequest articleRequest) {
+		// TODO: 인증 정보를 넣어줘야 한다.
+		articleService.updateArticle(articleId, articleRequest.toDto(UserAccountDto.of(
+			"uno", "asdf1234", "uno@mail.com", "Uno", "memo", null, null, null, null
+		)));
+
+		return "redirect:/articles/" + articleId;
+	}
+
+	@PostMapping ("/{articleId}/delete")
+	public String deleteArticle(@PathVariable Long articleId) {
+		// TODO: 인증 정보를 넣어줘야 한다.
+		articleService.deleteArticle(articleId);
+
+		return "redirect:/articles";
 	}
 }
