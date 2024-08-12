@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 
 import com.fastcampus.fastcampusprojectboardreview.domain.Article;
 import com.fastcampus.fastcampusprojectboardreview.domain.ArticleComment;
@@ -125,13 +127,14 @@ class ArticleCommentServiceTest {
 	void givenArticleCommentId_whenDeletingArticleComment_thenDeletesArticleComment() {
 		// Given
 		Long articleCommentId = 1L;
-		willDoNothing().given(articleCommentRepository).deleteById(articleCommentId);
+		String userId = "uno";
+		willDoNothing().given(articleCommentRepository).deleteByIdAndUserAccount_UserId(articleCommentId, userId);
 
 		// When
-		sut.deleteArticleComment(articleCommentId);
+		sut.deleteArticleComment(articleCommentId, userId);
 
 		// Then
-		then(articleCommentRepository).should().deleteById(articleCommentId);
+		then(articleCommentRepository).should().deleteByIdAndUserAccount_UserId(articleCommentId, userId);
 	}
 
 

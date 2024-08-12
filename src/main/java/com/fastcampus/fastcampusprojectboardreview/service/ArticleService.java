@@ -68,20 +68,24 @@ public class ArticleService {
 		try {
 			//findById대신 사용한 이유는 정확히 모르겠으나, 지연로딩에 entity를 바로 가져오고 못가져올 시 EntityNotFoundException를 무조건 반환한다.
 			Article article = articleRepository.getReferenceById(articleId);
-			if (dto.title() != null) {
-				article.setTitle(dto.title());
+
+			UserAccount userAccount = userAccountRepository.getReferenceById(dto.userAccountDto().userId());
+			if (article.getUserAccount().equals(userAccount)) {
+				if (dto.title() != null) {
+					article.setTitle(dto.title());
+				}
+				if (dto.content() != null) {
+					article.setContent(dto.content());
+				}
+				article.setHashtag(dto.hashtag());
 			}
-			if (dto.content() != null) {
-				article.setContent(dto.content());
-			}
-			article.setHashtag(dto.hashtag());
 		} catch (EntityNotFoundException e) {
-			log.warn("게시글 업데이트 실패. 게시글을 찾을 수 없습니다 - dto:{}", dto);
+			log.warn("게시글 업데이트 실패. 게시글을 수정하는데 필요한 정보를 찾을 수 없습니다 - {}", e.getLocalizedMessage());
 		}
 	}
 
-	public void deleteArticle(Long articleId) {
-		articleRepository.deleteById(articleId);
+	public void deleteArticle(Long articleId, String userId) {
+		articleRepository.deleteByIdAndUserAccount_UserId(articleId, userId);
 	}
 
 	public long getArticleCount() {
