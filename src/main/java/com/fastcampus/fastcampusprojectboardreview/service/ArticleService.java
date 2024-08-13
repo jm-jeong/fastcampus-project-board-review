@@ -1,6 +1,7 @@
 package com.fastcampus.fastcampusprojectboardreview.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +68,10 @@ public class ArticleService {
 	public void updateArticle(Long articleId, ArticleDto dto) {
 		try {
 			//findById대신 사용한 이유는 정확히 모르겠으나, 지연로딩에 entity를 바로 가져오고 못가져올 시 EntityNotFoundException를 무조건 반환한다.
-			Article article = articleRepository.getReferenceById(articleId);
+			// Article article = articleRepository.getReferenceById(articleId);
+			Article article = articleRepository.findById(articleId).orElseThrow(
+				() -> new EntityNotFoundException("게시글이 없습니다 - articleId: " + articleId)
+			);
 
 			UserAccount userAccount = userAccountRepository.getReferenceById(dto.userAccountDto().userId());
 			if (article.getUserAccount().equals(userAccount)) {
