@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fastcampus.fastcampusprojectboardreview.domain.constant.FormStatus;
 import com.fastcampus.fastcampusprojectboardreview.domain.constant.SearchType;
-import com.fastcampus.fastcampusprojectboardreview.dto.ArticleDto;
-import com.fastcampus.fastcampusprojectboardreview.dto.UserAccountDto;
 import com.fastcampus.fastcampusprojectboardreview.dto.request.ArticleRequest;
 import com.fastcampus.fastcampusprojectboardreview.dto.response.ArticleResponse;
 import com.fastcampus.fastcampusprojectboardreview.dto.response.ArticleWithCommentsResponse;
@@ -88,9 +86,9 @@ public class ArticleController {
 
 	@GetMapping("/form")
 	public String articleForm(ModelMap map) {
-		map.addAttribute("fromStatus", FormStatus.CREATE);
+		map.addAttribute("formStatus", FormStatus.CREATE);
 
-		return "articles/from";
+		return "articles/form";
 	}
 
 	@PostMapping("/form")
@@ -102,9 +100,10 @@ public class ArticleController {
 		return "redirect:/articles";
 	}
 
-	@GetMapping("/{articleId}/from")
+	@GetMapping("/{articleId}/form")
 	public String updateArticleForm(
 		@PathVariable Long articleId,
+		@AuthenticationPrincipal BoardPrincipal boardPrincipal,
 		ModelMap map
 	) {
 		ArticleResponse article = ArticleResponse.from(articleService.getArticle(articleId));
