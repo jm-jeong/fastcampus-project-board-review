@@ -23,7 +23,11 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(auth -> auth
 			.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-			.requestMatchers("/api/**").permitAll()
+			.requestMatchers(
+				"/api/**",
+				"/swagger-ui/**",
+				"/v3/api-docs/**"
+			).permitAll()
 			.requestMatchers(
 				HttpMethod.GET,
 				"/",
