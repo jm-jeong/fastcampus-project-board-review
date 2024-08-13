@@ -12,10 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import com.fastcampus.fastcampusprojectboardreview.config.SecurityConfig;
+import com.fastcampus.fastcampusprojectboardreview.config.TestSecurityConfig;
 
 @DisplayName("View Controller 인증")
-@Import(SecurityConfig.class)
+@Import(TestSecurityConfig.class)
 @WebMvcTest(Void.class)
 public class AuthControllerTest {
 	private final MockMvc mockMvc;
