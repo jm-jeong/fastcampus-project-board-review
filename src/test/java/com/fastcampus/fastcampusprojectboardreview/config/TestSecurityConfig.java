@@ -18,7 +18,7 @@ public class TestSecurityConfig {
 	private UserAccountRepository userAccountRepository;
 
 	@BeforeTestMethod
-	public void securitySetUp() {
+	 void securitySetUp() {
 		given(userAccountRepository.findById(anyString())).willReturn(Optional.of(UserAccount.of(
 			"unoTest",
 			"pw",
