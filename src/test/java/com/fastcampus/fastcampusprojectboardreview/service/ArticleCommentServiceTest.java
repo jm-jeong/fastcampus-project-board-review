@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 
 import com.fastcampus.fastcampusprojectboardreview.domain.Article;
 import com.fastcampus.fastcampusprojectboardreview.domain.ArticleComment;
+import com.fastcampus.fastcampusprojectboardreview.domain.Hashtag;
 import com.fastcampus.fastcampusprojectboardreview.domain.UserAccount;
 import com.fastcampus.fastcampusprojectboardreview.dto.ArticleCommentDto;
 import com.fastcampus.fastcampusprojectboardreview.dto.UserAccountDto;
@@ -167,7 +169,7 @@ class ArticleCommentServiceTest {
 
 	private ArticleComment createArticleComment(String content) {
 		return ArticleComment.of(
-			Article.of(createUserAccount(), "title", "content", "hashtag"),
+			createArticle(),
 			createUserAccount(),
 			content
 		);
@@ -184,12 +186,18 @@ class ArticleCommentServiceTest {
 	}
 
 	private Article createArticle() {
-		return Article.of(
+		Article article = Article.of(
 			createUserAccount(),
 			"title",
-			"content",
-			"#java"
+			"content"
 		);
+		article.addHashtags(Set.of(createHashtag(article)));
+
+		return article;
+	}
+
+	private Hashtag createHashtag(Article article) {
+		return Hashtag.of("java");
 	}
 
 }
