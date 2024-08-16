@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,21 +17,28 @@ import com.fastcampus.fastcampusprojectboardreview.config.TestSecurityConfig;
 
 @DisplayName("View Controller 인증")
 @Import(TestSecurityConfig.class)
-@WebMvcTest(Void.class)
-public class AuthControllerTest {
+@WebMvcTest(AuthControllerTest.EmptyController.class)
+ class AuthControllerTest {
 	private final MockMvc mockMvc;
 
-	public AuthControllerTest(@Autowired MockMvc mockMvc) {
+	 AuthControllerTest(@Autowired MockMvc mockMvc) {
 		this.mockMvc = mockMvc;
 	}
 
 	@DisplayName("[view][GET] 로그인 페이지 - 정상 호출")
 	@Test
-	public void givenNothing_whenTryingToLogin_thenReturnLoginView() throws Exception {
+	 void givenNothing_whenTryingToLogin_thenReturnLoginView() throws Exception {
 		//when & then
 		mockMvc.perform(get("/login"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
 			.andDo(MockMvcResultHandlers.print());
 	}
+
+
+	/**
+	 * 어떤 컨트롤러도 필요하지 않은 테스트임을 나타내기 위해 테스트용 빈 컴포넌트를 사용함.
+	 */
+	@TestComponent
+	static class EmptyController {}
 }

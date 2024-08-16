@@ -16,10 +16,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("Data REST - API 테스트")
 @AutoConfigureMockMvc
 @SpringBootTest
-public class DataRestTest {
+ class DataRestTest {
 	private final MockMvc mockMvc;
 
-	public DataRestTest(@Autowired MockMvc mockMvc) {
+	 DataRestTest(@Autowired MockMvc mockMvc) {
 		this.mockMvc = mockMvc;
 	}
 
