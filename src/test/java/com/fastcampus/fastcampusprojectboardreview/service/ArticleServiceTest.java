@@ -219,7 +219,7 @@ class ArticleServiceTest {
 		Set<Hashtag> expectedHashtags = new HashSet<>();
 		expectedHashtags.add(createHashtag("java"));
 
-		given(userAccountRepository.getReferenceById(dto.userAccountDto().userId())).willReturn(createUserAccount());
+		// given(userAccountRepository.getReferenceById(dto.userAccountDto().userId())).willReturn(createUserAccount());
 		given(hashtagService.parseHashtagNames(dto.content())).willReturn(expectedHashtagNames);
 		given(hashtagService.findHashtagsByNames(expectedHashtagNames)).willReturn(expectedHashtags);
 		given(articleRepository.save(any(Article.class))).willReturn(createArticle());
@@ -228,7 +228,7 @@ class ArticleServiceTest {
 		sut.saveArticle(dto);
 
 		// Then
-		then(userAccountRepository).should().getReferenceById(dto.userAccountDto().userId());
+		// then(userAccountRepository).should().getReferenceById(dto.userAccountDto().userId());
 		then(hashtagService).should().parseHashtagNames(dto.content());
 		then(hashtagService).should().findHashtagsByNames(expectedHashtagNames);
 		then(articleRepository).should().save(any(Article.class));
@@ -243,7 +243,7 @@ class ArticleServiceTest {
 		Set<String> expectedHashtagNames = Set.of("springboot");
 		Set<Hashtag> expectedHashtags = new HashSet<>();
 
-		given(articleRepository.getReferenceById(dto.id())).willReturn(article);
+		given(articleRepository.findById(dto.id())).willReturn(Optional.of(article));
 		given(userAccountRepository.getReferenceById(dto.userAccountDto().userId())).willReturn(dto.userAccountDto().toEntity());
 		willDoNothing().given(articleRepository).flush();
 		willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
@@ -261,7 +261,7 @@ class ArticleServiceTest {
 			.hasSize(1)
 			.extracting("hashtagName")
 			.containsExactly("springboot");
-		then(articleRepository).should().getReferenceById(dto.id());
+		then(articleRepository).should().findById(dto.id());
 		then(userAccountRepository).should().getReferenceById(dto.userAccountDto().userId());
 		then(articleRepository).should().flush();
 		then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
@@ -275,13 +275,13 @@ class ArticleServiceTest {
 	void givenNonexistentArticleInfo_whenUpdatingArticle_thenLogsWarningAndDoesNothing() {
 		// Given
 		ArticleDto dto = createArticleDto("새 타이틀", "새 내용");
-		given(articleRepository.getReferenceById(dto.id())).willThrow(EntityNotFoundException.class);
+		given(articleRepository.findById(dto.id())).willThrow(EntityNotFoundException.class);
 
 		// When
 		sut.updateArticle(dto.id(), dto);
 
 		// Then
-		then(articleRepository).should().getReferenceById(dto.id());
+		then(articleRepository).should().findById(dto.id());
 		then(userAccountRepository).shouldHaveNoInteractions();
 		then(hashtagService).shouldHaveNoInteractions();
 	}
@@ -312,7 +312,7 @@ class ArticleServiceTest {
 		// Given
 		Long articleId = 1L;
 		String userId = "uno";
-		// given(articleRepository.findById(articleId)).willReturn(Optional.of(createArticle()));
+		given(articleRepository.getReferenceById(articleId)).willReturn(createArticle());
 		willDoNothing().given(articleRepository).deleteByIdAndUserAccount_UserId(articleId, userId);
 		willDoNothing().given(articleRepository).flush();
 		willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
@@ -321,7 +321,7 @@ class ArticleServiceTest {
 		sut.deleteArticle(1L, userId);
 
 		// Then
-		// then(articleRepository).should().findById(articleId);
+		then(articleRepository).should().getReferenceById(articleId);
 		then(articleRepository).should().deleteByIdAndUserAccount_UserId(articleId, userId);
 		then(articleRepository).should().flush();
 		then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
