@@ -15,12 +15,12 @@ public class FormDataEncoder {
 
     private final ObjectMapper mapper;
 
-    public FormDataEncoder(ObjectMapper mapper) {
+     FormDataEncoder(ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
 
-    public String encode(Object obj) {
+     public String encode(Object obj) {
         Map<String, String> fieldMap = mapper.convertValue(obj, new TypeReference<>() {});
         MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
         valueMap.setAll(fieldMap);

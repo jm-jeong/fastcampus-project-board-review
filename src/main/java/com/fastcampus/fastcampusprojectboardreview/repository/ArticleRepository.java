@@ -26,18 +26,17 @@ public interface ArticleRepository extends JpaRepository<Article, Long>,
 	Page<Article> findByContentContaining(String content, Pageable pageable);
 	Page<Article> findByUserAccount_UserIdContaining(String userId, Pageable pageable);
 	Page<Article> findByUserAccount_NicknameContaining(String nickname, Pageable pageable);
-	Page<Article> findByHashtag(String hashtag, Pageable pageable);
 
 	void deleteByIdAndUserAccount_UserId(Long articleId, String userid);
 
 	@Override
 	default void customize(QuerydslBindings bindings, QArticle root) {
 		bindings.excludeUnlistedProperties(true);// 모든 필드 검색 안되게
-		bindings.including(root.title, root.content, root.createdBy, root.createdAt, root.hashtag);//검색 기능 제공할 필드만
+		bindings.including(root.title, root.content, root.createdBy, root.createdAt, root.hashtags);//검색 기능 제공할 필드만
 		bindings.bind(root.title).first(StringExpression::containsIgnoreCase);// like '%${v}%'
 		// bindings.bind(root.title).first(StringExpression::likeIgnoreCase);// like '${v}'
 		bindings.bind(root.content).first(StringExpression::containsIgnoreCase);
-		bindings.bind(root.hashtag).first(StringExpression::containsIgnoreCase);
+		bindings.bind(root.hashtags.any().hashtagName).first(StringExpression::containsIgnoreCase);
 		bindings.bind(root.createdBy).first(StringExpression::containsIgnoreCase);
 		bindings.bind(root.createdAt).first(DateTimeExpression::eq);
 

@@ -20,11 +20,11 @@ public class ArticleCommentController {
 	private final ArticleCommentService articleCommentService;
 
 	@PostMapping("/new")
-	public String postNewArticleComment(ArticleCommentRequest articleCommentRequest) {
-		//TODO 인증 정보 넣어줘야함
-		articleCommentService.saveArticleComment(articleCommentRequest.toDto(
-			UserAccountDto.of("uno", "pw", "uno@mail.com", null, null)
-		));
+	public String postNewArticleComment(
+		@AuthenticationPrincipal BoardPrincipal boardPrincipal,
+		ArticleCommentRequest articleCommentRequest
+	) {
+		articleCommentService.saveArticleComment(articleCommentRequest.toDto(boardPrincipal.toDto()));
 
 		return "redirect:/articles/" + articleCommentRequest.articleId();
 	}
